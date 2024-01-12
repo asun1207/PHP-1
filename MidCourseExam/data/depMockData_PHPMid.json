@@ -1,0 +1,10 @@
+[{"depid":1,"depName":"Storage","baseSalary":64095.56},
+{"depid":2,"depName":"Security","baseSalary":44168.0},
+{"depid":3,"depName":"Maintenance","baseSalary":48049.39},
+{"depid":4,"depName":"Beauty","sbaseSalary":52289.1},
+{"depid":5,"depName":"Toys","baseSalary":53720.38},
+{"depid":6,"depName":"Home","baseSalary":47251.63},
+{"depid":7,"depName":"Tools","baseSalary":83116.79},
+{"depid":8,"depName":"Shoes","baseSalary":79216.05},
+{"depid":9,"depName":"Industrial","baseSalary":76958.23},
+{"depid":10,"depName":"Management","baseSalary":87527.05}]

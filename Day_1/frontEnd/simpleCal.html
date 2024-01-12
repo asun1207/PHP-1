@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form>
+        <input type="number" />
+        <input type="number" />
+        <button type="submit">Calculate</button>
+    </form>
+    <h1></h1>
+</body>
+<script>
+    document.querySelector("form").addEventListener("submit",(e)=>{
+        e.preventDefault();
+        const xhr = new XMLHttpRequest();
+        xhr.onload = ()=>{
+            console.log(xhr)
+            if(xhr.status == 200)
+                document.querySelector("h1").innerText = xhr.responseText;
+        }
+        xhr.open("GET","http://localhost/php/calculator.php?"+`num1=${document.querySelectorAll("input")[0].value}&num2=${document.querySelectorAll("input")[1].value}`,true);
+        xhr.send();
+    })
+</script>
+</html>

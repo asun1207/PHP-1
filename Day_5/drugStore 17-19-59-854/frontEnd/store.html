@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <div class="container-fluid">
+      <div class="row justify-content-center align-items-center g-2">
+        <div class="col-8">
+          <h1 class="display-3">Welcome</h1>
+        </div>
+        <div class="col-4">
+          <button type="button" class="btn btn-outline-success">PAY</button>
+          <button type="button" class="btn btn-outline-success">Show Info</button>
+          <button type="button" class="btn btn-outline-danger">Logout</button>
+        </div>
+      </div>
+      <div class="row row-cols-1 row-cols-md-3 g-2">
+        <div class="col-1"></div>
+      </div>
+    </div>
+  </body>
+  <script type="module">
+    import XMLReq from "./js/XMLReq.js";
+    let xmlReq = new XMLReq("http://localhost/php/drugStore/main.php");
+
+    // Log out function
+    document.querySelectorAll("button")[2].addEventListener("click", () => {
+      sessionStorage.removeItem("uid");
+      sessionStorage.removeItem("name");
+      location.replace("./login.html");
+    });
+
+    const cardPoper = (data) => {
+      data = JSON.parse(data);
+      let row = document.querySelectorAll("div.row")[1];
+      for (let drug of data) {
+        let col = document.createElement("div");
+        col.className = "col";
+        let card = document.createElement("div");
+        card.classList.add("card");
+        let cardBody = document.createElement("div");
+        cardBody.classList.add("card-body");
+        let cardTitle = document.createElement("h4");
+        cardTitle.classList.add("card-title");
+        cardTitle.innerText = drug.dname;
+        let cardText = document.createElement("p");
+        cardText.classList.add("card-text");
+        cardText.innerText = `Code: ${drug.did} - Price: ${drug.price}`;
+        let shopBt = document.createElement("button");
+        shopBt.className = "btn btn-outline-warning";
+        shopBt.innerText = "Select";
+
+        shopBt.addEventListener("click", () => {
+          let selectedDrug = {
+            did: drug.did,
+            dname: drug.dname,
+            price: drug.price
+          };
+          sendToBackend(selectedDrug);
+        });
+
+        cardBody.append(cardTitle, cardText, shopBt);
+        card.append(cardBody);
+        col.append(card);
+        row.append(col);
+      }
+    };
+
+    const sendToBackend = (data) => {
+      console.log("data in sendToBackend: ", data);
+      let reqData = new FormData();
+      reqData.append("req", "buy");
+      reqData.append("selectedDrug[did]", data.did);
+      reqData.append("selectedDrug[dname]", data.dname);
+      reqData.append("selectedDrug[price]", data.price);
+      fetch("./main.php", { method: "POST", body: reqData })
+        .then((res) => res.json())
+        .catch((err) => console.error(err))
+        .then(() => {
+          //location.reload();
+        });
+    };
+
+    const storeSelectedDrugs = (selectedDrugs) => {
+      console.log("selected drugs in storeSelectedDrugs: ", selectedDrugs);
+
+      let reqData = new FormData();
+      reqData.append("req", "storeSelectedDrugs");
+      reqData.append("storSelectedDrugs", JSON.stringify(selectedDrugs));
+
+      xmlReq.Post(reqData).then(
+        (response) => {
+          console.log("Selected drugs stored in backend: ", response);
+        },
+        (rej) => {
+          console.log(rej);
+        }
+      );
+    };
+
+    const displayUserInfo = (userInfo) => {
+      console.log("User Info:", userInfo);
+    };
+
+    const displaySelectedDrugs = (selectedDrugs) => {
+      console.log("Selected Drugs:", selectedDrugs);
+    };
+
+    const loadUserInfoAndDrugs = () => {
+      if (sessionStorage.getItem("uid") != undefined) {
+        let userDataReq = new FormData();
+        userDataReq.append("req", "loadUserInfo");
+        xmlReq.Post(userDataReq).then(
+          (userInfo) => {
+            displayUserInfo(userInfo); // 사용자 정보 로그 표시
+            let selectedDrugsReq = new FormData();
+            selectedDrugsReq.append("req", "loadSelectedDrugs");
+            xmlReq.Post(selectedDrugsReq).then(
+              (selectedDrugs) => {
+                displaySelectedDrugs(selectedDrugs); // 선택한 약물 로그 표시
+              },
+              (rej) => {
+                console.log(rej);
+              }
+            );
+          },
+          (userInfoError) => {
+            console.log(userInfoError);
+          }
+        );
+      } else {
+        location.replace("./login.html");
+      }
+    };
+
+    const load = () => {
+      if (sessionStorage.getItem("uid") != undefined) {
+        document.querySelector("h1").innerText += ` ${sessionStorage.getItem("name")}`;
+        let reqData = new FormData();
+        reqData.append("req", "store");
+        xmlReq.Post(reqData).then(cardPoper, (rej) => console.log(rej));
+      } else {
+        location.replace("./login.html");
+      }
+    };
+    load();
+  </script>
+</html>

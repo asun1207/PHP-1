@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Document</title>
+</head>
+<body>
+   <form>
+      <input type="email" required name="email" />
+      <input type="password" required name="pass"/>
+      <button type="submit">Login</button>
+   </form>
+</body>
+<script>
+   document.querySelector("form").addEventListener("submit",(e)=>{
+      e.preventDefault();
+      let loginData = new FormData(e.target);
+      // let loginData = new FormData();
+      // loginData.append("email",document.querySelectorAll("input")[0].value);
+      // loginData.append("pass",document.querySelectorAll("input")[1].value);
+      const xhr = new XMLHttpRequest();
+      xhr.onload = ()=>{
+         if(xhr.status == 200){
+            sessionStorage.setItem("u",xhr.responseText);
+            location.replace("./welcome.html");
+         }
+      };
+      xhr.open("POST","http://localhost/php/File.php");
+      xhr.send(loginData);
+   })
+</script>
+</html>

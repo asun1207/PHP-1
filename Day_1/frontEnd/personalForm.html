@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1></h1>
+    <form>
+        <input />
+        <input />
+        <button type="submit">GET SUBMIT</button>
+    </form>
+    <form>
+        <input />
+        <input />
+        <br/>
+        <input />
+        <button type="submit">POST SUBMIT</button>
+    </form>
+    <h2></h2>
+</body>
+<script>
+    document.querySelectorAll("form")[0].addEventListener("submit",(e)=>{
+        e.preventDefault();
+        let queryString = `name=${document.querySelectorAll("input")[0].value}&family=${document.querySelectorAll("input")[1].value}`;
+        let xhr = new XMLHttpRequest();
+        xhr.onload = ()=>{
+            if(xhr.status == 200){
+                document.querySelector("h1").innerText = xhr.responseText;
+            }
+        }
+        xhr.open("GET","http://localhost/php/Name.php?"+queryString);
+        xhr.send();
+    });
+    document.querySelectorAll("form")[1].addEventListener("submit",(e)=>{
+        e.preventDefault();
+        let requestBody = {
+            'name':document.querySelectorAll("input")[2].value,
+            'family':document.querySelectorAll("input")[3].value,
+            'wishes':document.querySelectorAll("input")[4].value
+        }
+        let xhr = new XMLHttpRequest();
+        xhr.onload = ()=>{
+            if(xhr.status == 200){
+                document.querySelector("h2").innerText = xhr.responseText;
+            }
+        }
+        xhr.open("POST","http://localhost/php/Name.php",true);
+        xhr.setRequestHeader("Content-type","application/json; charset=UTF-8");
+        xhr.send(JSON.stringify(requestBody));
+    });
+</script>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Document</title>
+</head>
+<body>
+   <h1></h1>
+   <form>
+      <textarea name="content"></textarea>
+      <button type="submit">Save</button>
+   </form>
+   <h5></h5>
+</body>
+<script>
+   let user = null;
+   const load = ()=>{
+         if(sessionStorage.getItem("u")!=undefined){
+         user = JSON.parse(sessionStorage.getItem("u"));
+         document.querySelector("h1").innerText = `Welcome ${user.fname} ${user.lname}`;
+         let loadData = new FormData();
+         loadData.append("req","read");
+         loadData.append("filename",`${user.fname}${user.lname[0]}${user.lname[1]}`);
+         let xhr = new XMLHttpRequest();
+         xhr.onload = ()=>{
+            if(xhr.status == 200){
+               document.querySelector("textarea").value = xhr.responseText;
+            }
+         };
+         xhr.open("POST","http://localhost/php/FileHandler.php");
+         xhr.send(loadData);
+         }else{
+            location.replace("./login.html");
+         }
+   }
+   load();
+   document.querySelector("form").addEventListener("submit",(e)=>{
+      e.preventDefault();
+      let textData = new FormData(e.target);
+      textData.append("req","write");
+      textData.append("filename",`${user.fname}${user.lname[0]}${user.lname[1]}`);
+      let xhr = new XMLHttpRequest();
+      xhr.onload = ()=>{
+         if(xhr.status == 200){
+            document.querySelector("h5").innerText = xhr.responseText;
+         }
+      };
+      xhr.open("POST","http://localhost/php/FileHandler.php");
+      xhr.send(textData);
+   })
+</script>
+</html>

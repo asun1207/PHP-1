@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body></body>
+  <script>
+    const xmlRequest = (method, uri, data = "") => {
+      let dataPromise = new Promise((res, rej) => {
+        let xhr = new XMLHttpRequest();
+        xhr.onload = () => {
+          if (xhr.status == 200) {
+            res(xhr.responseText);
+          } else {
+            rej(xhr.statusText);
+          }
+        };
+        xhr.open(method, uri);
+        data != "" ? xhr.send(data) : xhr.send();
+      });
+      return dataPromise;
+    };
+    if (sessionStorage.getItem("sid") == undefined) {
+      let reqData = new FormData();
+      reqData.append("req", "sid");
+      reqData.append("name", "Kosuke");
+      xmlRequest("POST", "http://localhost/php/NewPC/test.php", reqData).then(
+        (data) => {
+          sessionStorage.setItem("sid", JSON.parse(data).sid);
+        },
+        (rej) => console.log(rej)
+      );
+    } else {
+      let reqData = new FormData();
+      reqData.append("req", "load");
+      reqData.append("sid", sessionStorage.getItem("sid"));
+      xmlRequest("POST", "http://localhost/php/NewPC/test.php", reqData).then(
+        (data) => console.log(data),
+        (rej) => console.log(rej)
+      );
+    }
+  </script>
+</html>

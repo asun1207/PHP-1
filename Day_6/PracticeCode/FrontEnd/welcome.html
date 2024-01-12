@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h1></h1>
+    <div>
+      <button type="button">Logout</button>
+    </div>
+    <br />
+    <table border="1">
+      <thead>
+        <tr>
+          <th>Filename</th>
+          <th>Options</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <br />
+    <form>
+      <input name="filename" placeholder="File name to save" required /><br />
+      <textarea name="content"></textarea><br />
+      <button type="submit">Save</button>
+    </form>
+    <h5></h5>
+  </body>
+  <script>
+    // Log out function
+    document.querySelectorAll("button")[0].addEventListener("click", () => {
+      sessionStorage.removeItem("u");
+      location.replace("./login.html");
+    });
+
+    let user = null;
+    const fileOpen = (e) => {
+      let openReq = new FormData();
+      openReq.append("req", "open");
+      openReq.append("dirname", `${user.fname}${user.lname[0]}${user.lname[1]}`);
+      let fileName = e.target.parentElement.previousElementSibling.innerText;
+      openReq.append("filename", fileName);
+      let openPromise = new Promise((res, rej) => {
+        let xhr = new XMLHttpRequest();
+        xhr.onload = () => {
+          if (xhr.status == 200) {
+            res(xhr.responseText);
+          } else {
+            rej(xhr.statusText);
+          }
+        };
+        xhr.open("POST", "http://localhost/php/PracticeCode/FileHandler.php");
+        xhr.send(openReq);
+      }).then(
+        (data) => {
+          console.log(data);
+        },
+        (rej) => {
+          alert(rej);
+        }
+      );
+    };
+
+    const deleteFile = (e) => {
+      let deleteReq = new FormData();
+      deleteReq.append("req", "delete");
+      deleteReq.append("dirname", `${user.fname}${user.lname[0]}${user.lname[1]}`);
+      let fileName = e.target.parentElement.previousElementSibling.innerText;
+      deleteReq.append("filename", fileName);
+      let openPromise = new Promise((res, rej) => {
+        let xhr = new XMLHttpRequest();
+        xhr.onload = () => {
+          if (xhr.status == 200) {
+            res(xhr.responseText);
+          } else {
+            rej(xhr.statusText);
+          }
+        };
+        xhr.open("POST", "http://localhost/php/PracticeCode/FileHandler.php");
+        xhr.send(deleteReq);
+      }).then(
+        (data) => {
+          console.log(data);
+        },
+        (rej) => {
+          alert(rej);
+        }
+      );
+    };
+
+    const buttonPoper = (tr) => {
+      let td = document.createElement("td");
+      let openBt = document.createElement("button");
+      openBt.innerText = "Open";
+      openBt.addEventListener("click", fileOpen);
+
+      let delBt = document.createElement("button");
+      delBt.innerText = "Delete";
+      delBt.addEventListener("click", deleteFile);
+      td.append(openBt, delBt);
+      tr.append(td);
+      return tr;
+    };
+    const tablePoper = (data) => {
+      for (let item of data) {
+        let tr = document.createElement("tr");
+        let td = document.createElement("td");
+        td.innerText = item;
+        tr.append(td);
+        document.querySelector("tbody").append(buttonPoper(tr));
+      }
+    };
+    const load = () => {
+      if (sessionStorage.getItem("u") != undefined) {
+        user = JSON.parse(sessionStorage.getItem("u"));
+        document.querySelector("h1").innerText = `Welcome ${user.fname} ${user.lname}`;
+      }
+      let reqData = new FormData();
+      reqData.append("req", "read");
+      reqData.append("dirname", `${user.fname}${user.lname[0]}${user.lname[1]}`);
+      let loadPromise = new Promise((res, rej) => {
+        let xhr = new XMLHttpRequest();
+        xhr.onload = () => {
+          if (xhr.status == 200) {
+            res(JSON.parse(xhr.responseText));
+          } else {
+            rej(xhr.statusText);
+          }
+        };
+        xhr.open("POST", "http://localhost/php/PracticeCode/FileHandler.php");
+        xhr.send(reqData);
+      }).then(tablePoper, (err) => {
+        alert(err);
+      });
+    };
+    load();
+    document.querySelector("form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      let textData = new FormData(e.target);
+      textData.append("req", "write");
+      textData.append("dirname", `${user.fname}${user.lname[0]}${user.lname[1]}`);
+      let xhr = new XMLHttpRequest();
+      xhr.onload = () => {
+        if (xhr.status == 200) {
+          document.querySelector("h5").innerText = xhr.responseText;
+        }
+      };
+      xhr.open("POST", "http://localhost/php/PracticeCode/FileHandler.php");
+      xhr.send(textData);
+    });
+  </script>
+</html>
